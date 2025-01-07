@@ -1,0 +1,22 @@
+---
+
+- name: Ansible apt module examples
+  hosts: linux
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: Install multiple packages
+      register: updatesys
+      apt:
+        name:
+          - wget
+          - curl
+          - git
+          - screen
+          - cu
+          - minicom
+          - htop
+          - tmux
+          - screen
+        state: present

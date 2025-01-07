@@ -1,0 +1,10 @@
+---
+
+- name: Ansible shell module examples
+  hosts: ucserver
+  become: yes
+  gather_facts: false
+
+  tasks:
+    - name: upgrade UCS systems
+      ansible.builtin.shell: 'univention-upgrade --ignoressh --ignoreterm --noninteractive'

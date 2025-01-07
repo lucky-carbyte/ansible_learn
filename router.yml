@@ -1,0 +1,20 @@
+---
+
+- name: cisco show version
+  hosts: routers
+  gather_facts: false
+
+  tasks:
+    - name: run show version on routers
+      ios_command:
+        commands:
+          - show version
+          - show run
+      register: output
+
+    - name: Copy output to file
+      lineinfile:
+        create: yes
+        line: "{{item}}"
+        path: ./output/{{ inventory_hostname }}.txt
+      with_items: "{{ output.stdout }}"

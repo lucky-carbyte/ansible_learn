@@ -1,2 +1,2 @@
 # ansible_learn
-to learn ansible 
+to learn ansible automation for my LINUX and homelab env

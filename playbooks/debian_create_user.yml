@@ -1,0 +1,25 @@
+---
+- hosts: centos8
+  become: true
+  vars:
+    sudoers: ansible
+    createguid: '1000'
+    createuser: 'labadmin'
+    createusername: 'LAB admin'
+    createpassword: 'M31nP4p4157d3r4113r83573!'
+  tasks:
+    - name: Make sure we have a group '{{ createuser }}' for our new admin-user '{{ createuser }}'
+      group:
+        name: '{{ createuser }}'
+        gid: '{{ createguid }}'
+        state: present
+    - name: Add the user '{{ createuser }}' with a specific uid and a primary group of '{{ createuser }}'
+      user:
+        name: '{{ createuser }}'
+        comment: '{{ createusername }}'
+        uid: '{{ createguid }}'
+        group: '{{ createuser }}'
+        state: present
+    - name: Initial password generation for user '{{ createuser }}'
+      shell: usermod -p $(echo '{{ createpassword }}' | openssl passwd -1 -stdin) {{ createuser }}
+...

@@ -1,0 +1,81 @@
+---
+- name: Cisco IOS backup with diff
+  hosts: cisco
+  gather_facts: false
+
+  vars:
+    ansible_connection: ansible.netcommon.network_cli
+    ansible_network_os: cisco.ios.ios
+    ansible_become: no
+
+    backup_base: /home/ansible/backups
+    backup_timestamp: "{{ lookup('pipe', 'date +%Y-%m-%d_%H-%M-%S') }}"
+    backup_dir: "{{ backup_base }}/{{ inventory_hostname }}"
+    backup_file: "running_{{ backup_timestamp }}.cfg"
+
+  tasks:
+
+    - name: Ensure backup directory exists
+      delegate_to: localhost
+      file:
+        path: "{{ backup_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Backup running configuration
+      cisco.ios.ios_config:
+        backup: true
+        backup_options:
+          filename: "{{ backup_file }}"
+          dir_path: "{{ backup_dir }}"
+      register: backup_result
+
+    - name: Find existing backups
+      delegate_to: localhost
+      find:
+        paths: "{{ backup_dir }}"
+        patterns: "running_*.cfg"
+        recurse: false
+      register: backups_found
+
+    - name: Sort backups by date
+      delegate_to: localhost
+      set_fact:
+        sorted_backups: >-
+          {{
+            backups_found.files
+            | sort(attribute='path')
+          }}
+
+    - name: Set previous backup
+      delegate_to: localhost
+      set_fact:
+        previous_backup: >-
+          {{
+            sorted_backups[-2].path
+            if sorted_backups | length > 1
+            else ''
+          }}
+
+    - name: Diff with previous backup
+      when: previous_backup != ''
+      delegate_to: localhost
+      command: >
+        diff -u {{ previous_backup }}
+        {{ backup_dir }}/{{ backup_file }}
+      register: diff_output
+      changed_when: diff_output.stdout != ''
+      failed_when: false
+
+    - name: Report diff result
+      debug:
+        msg: |
+          Device: {{ inventory_hostname }}
+          Backup file: {{ backup_file }}
+          {% if previous_backup %}
+          Diff against: {{ previous_backup | basename }}
+
+          {{ diff_output.stdout | default('No changes detected') }}
+          {% else %}
+          No previous backup found (first run)
+          {% endif %}

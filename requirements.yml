@@ -1,0 +1,13 @@
+---
+roles:
+  - name: alemorvan.patchmanagement
+  - name: geerlingguy.firewall
+  - name: geerlingguy.docker
+  - name: geerlingguy.ntp
+  - name: geerlingguy.nginx
+  - name: dev-sec.ssh-hardening
+  - name: dev-sec.os-hardening
+  - name: cloudalchemy.prometheus
+  - name: cloudalchemy.node_exporter
+  - name: cloudalchemy.grafana
+collections: []

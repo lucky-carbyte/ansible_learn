@@ -1,0 +1,19 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: yes
+  remote_user: root
+  become_user: root
+
+  tasks:
+    - name: Copy file with owner and permissions
+      ansible.builtin.copy:
+        src: ~/skel/.vimrc
+        dest: /etc/skel/.vimrc
+        owner: root
+        group: root
+        mode: '0644'
+    - name: delete visible file
+      ansible.builtin.file:
+        path: /etc/skel/vimrc
+        state: absent

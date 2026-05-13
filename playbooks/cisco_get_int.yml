@@ -5,7 +5,12 @@
   gather_facts: false
 
   vars: # for execution environment
-
+    # Nutzung der Vault-Variablen:
+    ansible_user: "{{ vault_cisco_user }}"
+    ansible_password: "{{ vault_cisco_password }}"
+    ansible_ssh_pass: "{{ vault_cisco_password }}"
+    ansible_host_key_checking: false  # <-- Löst das Problem bei network_cli
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
     ansible_connection: ansible.netcommon.network_cli
     ansible_network_os: cisco.ios.ios
     ansible_become: no

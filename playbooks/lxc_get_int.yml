@@ -1,0 +1,11 @@
+---
+- name: Get all network interfaces name
+  hosts: lxc_all
+  gather_facts: yes
+  remote_user: root
+  become_user: root
+
+  tasks:
+  - name: Display all interfaces name
+    debug:
+      var: ansible_facts.interfaces

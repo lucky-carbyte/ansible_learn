@@ -1,0 +1,15 @@
+all:
+  vars:
+    # Use 'lab' as the SSH user for all hosts
+    ansible_user: labadmin
+
+    # Enable sudo (privilege escalation)
+    ansible_become: true
+    ansible_become_method: sudo
+    ansible_become_user: root
+
+    # default python setup
+    ansible_python_interpreter: /usr/bin/python
+    gitea_url: "https://gitea.lan.luckyh.de:3000"
+    root_ca_path: "resource/global/LAN_root_CA.pem"
+    python_interpreter: "/usr/bin/python3"

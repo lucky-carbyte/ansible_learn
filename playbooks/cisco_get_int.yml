@@ -1,6 +1,6 @@
 # File: verify_interface_status.yml
 ---
-- name: Cisco show version example
+- name: Cisco BACKUP config
   hosts: cisco
   gather_facts: false
 

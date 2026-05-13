@@ -19,4 +19,6 @@
           - htop
           - tmux
           - screen
+          - btop
+          - htop
         state: present

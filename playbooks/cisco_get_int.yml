@@ -1,34 +1,38 @@
-# File: verify_interface_status.yml
+# File: get_interface_status_and_vlans.yml
 ---
-- name: Cisco BACKUP config
+- name: Cisco IOS Interface-Status und VLANs auslesen
   hosts: cisco
   gather_facts: false
 
-  vars: # for execution environment
-    # Nutzung der Vault-Variablen:
-    ansible_user: "{{ vault_cisco_user }}"
-    ansible_password: "{{ vault_cisco_password }}"
-    ansible_ssh_pass: "{{ vault_cisco_password }}"
-    ansible_host_key_checking: false  # <-- Löst das Problem bei network_cli
-    ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+  vars_files:
+    - ../vault/cisco.yml
+
+  vars:
+    ansible_host_key_checking: false
     ansible_connection: ansible.netcommon.network_cli
     ansible_network_os: cisco.ios.ios
     ansible_become: no
     ansible_become_method: disable
 
+    ansible_user: "{{ vault_cisco_user }}"
+    ansible_password: "{{ vault_cisco_password }}"
+    ansible_ssh_pass: "{{ vault_cisco_password }}"
+
   tasks:
+    - name: Physikalischen Interface-Status (Up/Down, Speed, Duplex) sammeln
+      cisco.ios.ios_interfaces:
+        state: gathered
+      register: physical_interfaces
 
-  - name: Gather only the config and default facts
-    cisco.ios.ios_facts:
-      gather_subset:
-      - config
-  - name: Configurable backup path
-    cisco.ios.ios_config:
-      backup: true
-      backup_options:
-        filename: "{{ inventory_hostname }}.cfg"
-        dir_path: /home/ansible/backups
+    - name: Layer-2 Informationen (VLANs, Access/Trunk) sammeln
+      cisco.ios.ios_l2_interfaces:
+        state: gathered
+      register: l2_interfaces
 
-  - name: Show facts
-    debug:
-      msg: "{{ ansible_facts.net_version }}"
+    - name: Ergebnisse strukturiert im Terminal anzeigen
+      ansible.builtin.debug:
+        msg:
+          - "--- PHYSIKALISCHER STATUS ---"
+          - "{{ physical_interfaces.gathered }}"
+          - "--- LAYER-2 & VLAN STATUS ---"
+          - "{{ l2_interfaces.gathered }}"

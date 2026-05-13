@@ -1,0 +1,46 @@
+---
+all:
+  vars:
+    # Use 'lab' as the SSH user for all hosts
+    ansible_user: lab
+
+    # Enable sudo (privilege escalation)
+    ansible_become: true
+    ansible_become_method: sudo
+    ansible_become_user: root
+
+    # default python setup
+    ansible_python_interpreter: /usr/bin/python
+
+    # If 'lab' requires a sudo password, it is best practice to
+    # pass it via --ask-become-pass at runtime, but for
+    # automated environments, it can be defined here:
+    # ansible_become_password: "{{ vault_sudo_password }}"
+
+  children:
+    rpi_servers:
+      hosts:
+        comp10.nue1-lab.luckyh.de:
+        comp11.nue1-lab.luckyh.de:
+        comp20.nue1-lab.luckyh.de:
+        comp21.nue1-lab.luckyh.de:
+        comp22.nue1-lab.luckyh.de:
+        comp23.nue1-lab.luckyh.de:
+        comp24.nue1-lab.luckyh.de:
+        comp25.nue1-lab.luckyh.de:
+        comp26.nue1-lab.luckyh.de:
+        comp27.nue1-lab.luckyh.de:
+        comp28.nue1-lab.luckyh.de:
+          # You can override variables per host if needed
+
+    automation:
+      hosts:
+        comp20.nue1-lab.luckyh.de:
+        comp21.nue1-lab.luckyh.de:
+        comp22.nue1-lab.luckyh.de:
+        comp23.nue1-lab.luckyh.de:
+        comp24.nue1-lab.luckyh.de:
+        comp25.nue1-lab.luckyh.de:
+        comp26.nue1-lab.luckyh.de:
+        comp27.nue1-lab.luckyh.de:
+        comp28.nue1-lab.luckyh.de:

@@ -1,4 +1,5 @@
 ---
+- name: copy vimrc to hosts
 - hosts: all
   gather_facts: yes
   become: yes

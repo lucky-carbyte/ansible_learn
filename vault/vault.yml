@@ -1,0 +1,3 @@
+# but only with ansible-vault create ...
+vault_cisco_user: "Ihr_Cisco_Benutzername"
+vault_cisco_password: "Ihr_Cisco_Passwort"

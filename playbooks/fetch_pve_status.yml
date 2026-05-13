@@ -1,0 +1,51 @@
+---
+- name: Grab PVE Network and Status with IP-based Backup
+  hosts: pve
+  remote_user: labadmin  # Hier wird der Login-User definiert
+  vars_files:
+    - ~/group_vars/vault.yaml
+  become: yes            # Erforderlich, um Befehle als root auszuführen
+    #become_method: sudo
+  gather_facts: yes  # Erforderlich, um die IP-Adresse automatisch zu ermitteln
+
+  tasks:
+    - name: Define Backup Path
+      set_fact:
+        # Ordnername = IP-Adresse, Dateiname = Status_Datum_Uhrzeit.txt
+        target_folder: "~/backups/{{ ansible_default_ipv4.address }}"
+        target_filename: "status_{{ ansible_date_time.date }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}.txt"
+
+    - name: Create local backup directory
+      delegate_to: localhost
+      become: no
+      file:
+        path: "{{ target_folder }}"
+        state: directory
+        mode: '0755'
+
+    - name: Collect Proxmox Data
+      shell: |
+        echo "=== PVE VERSION ==="
+        pveversion -v
+        echo -e "\n=== NETWORK INTERFACES ==="
+        cat /etc/network/interfaces
+        echo -e "\n=== IP ADDR OUTPUT ==="
+        ip -4 addr
+        echo -e "\n=== ZFS STATUS ==="
+        zpool status
+        echo -e "\n=== VM LIST ==="
+        qm list
+      register: pve_data
+
+    - name: Save report to IP-address folder
+      delegate_to: localhost
+      become: no
+      copy:
+        dest: "{{ target_folder }}/{{ target_filename }}"
+        content: "{{ pve_data.stdout }}"
+
+    - name: Success Message
+      debug:
+        msg: "Backup saved to {{ target_folder }}/{{ target_filename }}"
+
+

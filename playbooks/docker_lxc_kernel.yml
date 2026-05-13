@@ -1,0 +1,39 @@
+---
+- name: Kernel Module und Sysctl für Docker in LXC konfigurieren
+  hosts: docker
+  become: yes
+  tasks:
+    - name: Kernel-Module für das nächste Booten vormerken
+      copy:
+        dest: /etc/modules-load.d/docker-swarm.conf
+        content: |
+          overlay
+          br_netfilter
+          vxlan
+          ip_vs
+          ip_vs_rr
+          ip_vs_wrr
+          ip_vs_sh
+          nf_conntrack
+        mode: '0644'
+
+    - name: Sysctl Parameter für IP-Forwarding und Bridge-Traffic setzen
+      ansible.posix.sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: yes
+        sysctl_file: /etc/sysctl.d/99-docker-lxc.conf
+      loop:
+        - { key: "net.ipv4.ip_forward", value: "1" }
+        - { key: "net.bridge.bridge-nf-call-iptables", value: "1" }
+        - { key: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
+
+    - name: Sicherstellen, dass Module sofort aktiv sind
+      community.general.modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - overlay
+        - br_netfilter
+      ignore_errors: yes

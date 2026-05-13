@@ -1,4 +1,3 @@
-ansible@semaphore:~/5Glab$ cat inventory.yml
 ---
 ueransim:
    hosts:
